@@ -1,0 +1,35 @@
+# Smoke check of the console's "ao" tuning command (temporary branch ao-tuning).
+render checkall
+timeout 60
+reject Script error
+waitmenu
+console thingamabob
+newgame
+waitfor 15 IsGreater(HP(GetLeader()),0)
+console @BlockUnit(GetLeader(),0)
+waitwindow 15 battle
+
+zone bz1g 0
+waitzone 20 bz1g
+waitfor 15 IsGreater(HP(GetLeader()),0)
+console @GodMode(0,1)
+console @FixWorldTime(12)
+wait 2000
+move 400 20
+frames 5
+freeze
+capture ao_default
+console ao
+expect ao on: radius 1.5
+console ao strength 2
+console ao direct 0.5
+expect direct 0.5
+frames 5
+capture ao_strong
+console ao show
+frames 5
+capture ao_show
+console ao off
+frames 5
+capture ao_off
+unfreeze

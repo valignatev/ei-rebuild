@@ -49,6 +49,7 @@ struct TerrainGroundFsParams {
     float snow;
     int occlusionOn;       // ambient_occlusion's arguments
     int occlusionView;     // the harness's occlusion view (SetOcclusion's View)
+    float occlusionDirect; // how much the occlusion darkens the direct light too
     float occlusionDepthOffset;
     float occlusionDepthScale;
     float2 occlusionScale;
@@ -179,6 +180,7 @@ float4 Shade(VsOut i) {
     float3 spec;
     float3 lit = ground_light(i.world, n, i.col, 0.0, i.loss, hidden, shadow.strength, pointShadow.count > 0,
                               pixel_turn(i.pos.xy), occlusion, spec);
+    lit *= lerp(1.0, occlusion, fs.occlusionDirect);
     GroundWeather g = ground_weather(i, n, open);
     float4 rings = 0.0;
     if (g.puddle > 0.0) rings = rain_rings(i.world.xy, fs.rain, footprint);

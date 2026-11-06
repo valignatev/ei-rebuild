@@ -75,6 +75,13 @@ RoofInfo RoofState();
 // often one was worked out since the start.
 enum class OcclusionMode { On, Off, View };
 void SetOcclusion(OcclusionMode mode);
+// Temporary live tuning (the console's "ao"). mode: an OcclusionMode.
+struct OcclusionTuning {
+    float radius = 1.5f, strength = 1.0f, bias = 0.1f, widest = 40.0f, sharpness = 8.0f, direct = 0.0f;
+    int mode = 0;
+};
+OcclusionTuning GetOcclusionTuning();
+void SetOcclusionTuning(const OcclusionTuning& tuning);
 struct OcclusionInfo {
     bool made = false;
     int width = 0, height = 0;   // the half-size depth's

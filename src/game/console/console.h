@@ -185,7 +185,7 @@ void Execute(const std::string& text);
 // Rebirth's console additions. AddNewConsoleCommands: the commands registered after the game's ("help" replaces the
 // game's, which addon's own "help" calls first); the battle screen's drawing applies "nogui" to its panels.
 // AutoExec: the "Console AutoExec" lines, run before three of the game's console executions.
-extern const CommandRegistration kAddonCommandRegistrations[6];
+extern const CommandRegistration kAddonCommandRegistrations[7];
 void ApplyAddonGuiVisibility(UiContainer* screen);
 void RunAddonAutoExec();
 // A console line split at spaces (a token in double quotes keeps its spaces and quotes).

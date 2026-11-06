@@ -135,6 +135,7 @@ struct MeshFsParams {
     float2 patchScale;     // the patch texture's coordinates: uv * patchScale + patchOffset
     float2 patchOffset;
     float4 patchInside;    // ... kept inside its rectangle (u0, v0, u1, v1)
+    float occlusionDirect;        // how much the occlusion darkens the direct light too
     float occlusionDepthOffset;   // ambient_occlusion's arguments (a world mesh lit here; MeshRecord::kinds.w on)
     float occlusionDepthScale;
     float2 occlusionScale;
@@ -391,7 +392,10 @@ float4 Shade(VsOut i) {
     float4 diffuse = i.col;
     float occlusion = ambient_occlusion(i.pos.xy, i.pos.z, draw.kinds.w, fs.occlusionDepthOffset,
                                         fs.occlusionDepthScale, fs.occlusionScale, fs.occlusionTexel);
-    if (draw.lit.x != 0) diffuse.rgb = figure_light(i.model, i.normal, i.land, face, pixel_turn(i.pos.xy), occlusion);
+    if (draw.lit.x != 0) {
+        diffuse.rgb = figure_light(i.model, i.normal, i.land, face, pixel_turn(i.pos.xy), occlusion);
+        diffuse.rgb *= lerp(1.0, occlusion, fs.occlusionDirect);
+    }
     float4 current = diffuse;
     float4 t0 = tex0.Sample(smp0, i.uv);
     // Stage 0's patch: inside its rectangle the texels come from the patch texture (a unit's face).

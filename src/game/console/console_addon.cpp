@@ -10,6 +10,7 @@
 #include "platform/platform.h"
 #include "game/ui/ui.h"
 #include "game/ui/ui_cursor.h"
+#include "render/render_checks.h"
 
 #include "lib/crt.h"
 #include "lib/str.h"
@@ -168,6 +169,35 @@ void NoGui(const CommandArgs& args) {
     g_cursor.ShowImage(g_cursorShown);
 }
 
+// ao: live tuning of the ambient occlusion (temporary).
+void Ao(const CommandArgs& args) {
+    render::OcclusionTuning t = render::GetOcclusionTuning();
+    if (!args.empty()) {
+        const std::string key = args[0];
+        const bool hasValue = args.size() > 1;
+        const float v = hasValue ? str::ToFloat(args[1]) : 0.0f;
+        if (key == "off") t.mode = static_cast<int>(render::OcclusionMode::Off);
+        else if (key == "on") t.mode = static_cast<int>(render::OcclusionMode::On);
+        else if (key == "show") t.mode = static_cast<int>(render::OcclusionMode::View);
+        else if (key == "radius" && hasValue) t.radius = v;
+        else if (key == "strength" && hasValue) t.strength = v;
+        else if (key == "bias" && hasValue) t.bias = v;
+        else if (key == "widest" && hasValue) t.widest = v;
+        else if (key == "sharpness" && hasValue) t.sharpness = v;
+        else if (key == "direct" && hasValue) t.direct = v;
+        else {
+            Say("ao [radius|strength|bias|widest|sharpness|direct <value>] | on | off | show");
+            return;
+        }
+        render::SetOcclusionTuning(t);
+        t = render::GetOcclusionTuning();
+    }
+    static const char* const kModes[] = {"on", "off", "show"};
+    SayFormat("ao %s: radius %f strength %f bias %f widest %f sharpness %f direct %f", kModes[t.mode],
+              static_cast<double>(t.radius), static_cast<double>(t.strength), static_cast<double>(t.bias),
+              static_cast<double>(t.widest), static_cast<double>(t.sharpness), static_cast<double>(t.direct));
+}
+
 // The AutoExec lines, read once (addon reads them when it loads).
 const std::vector<std::string>& AutoExecLines() {
     static std::vector<std::string> lines = [] {
@@ -185,13 +215,14 @@ const std::vector<std::string>& AutoExecLines() {
 
 } // namespace
 
-const CommandRegistration kAddonCommandRegistrations[6] = {
+const CommandRegistration kAddonCommandRegistrations[7] = {
     {true, "help", Help},
     {true, "addon", Addon},
     {true, "execs", Execs},
     {true, "listgvar", ListGlobals},
     {true, "drawall", DrawAll},
     {false, "nogui", NoGui},
+    {false, "ao", Ao},
 };
 
 void ApplyAddonGuiVisibility(UiContainer* screen) {

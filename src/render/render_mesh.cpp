@@ -402,6 +402,7 @@ static bool FillRecord(const Frame& f, const MeshBatch& batch, MeshRecord& r, Pa
     r.kinds[3] = occlusion.on ? 1 : 0;
     r.lit[3] = occlusion.view ? 1 : 0;
     const OcclusionReceiver& frameOcclusion = OcclusionOf(true);
+    fs.occlusionDirect = frameOcclusion.direct;
     fs.occlusionDepthOffset = frameOcclusion.depthOffset;
     fs.occlusionDepthScale = frameOcclusion.depthScale;
     for (int k = 0; k < 2; ++k) {

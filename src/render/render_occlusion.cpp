@@ -13,12 +13,13 @@ namespace render {
 // The radius the occlusion is looked for in (world units: about a unit's height and a half), the most it darkens
 // (horizons all round at the surface's normal: 1 - kStrength), the rise above a surface's plane that hides nothing
 // (its facets' creases), and the widest radius in texels (a surface just before the camera).
-constexpr float kRadius = 1.5f;
-constexpr float kStrength = 1.0f;
-constexpr float kAngleBias = 0.1f;
-constexpr float kWidestTexels = 40.0f;
+static float kRadius = 1.5f;
+static float kStrength = 1.0f;
+static float kAngleBias = 0.1f;
+static float kWidestTexels = 40.0f;
+static float kDirect = 0.0f;
 // The blur leaves out a texel whose depth lies 1 / kBlurSharpness of the distance nearer or further: another surface.
-constexpr float kBlurSharpness = 8.0f;
+static float kBlurSharpness = 8.0f;
 
 static OcclusionMode g_mode = OcclusionMode::On;
 static OcclusionInfo g_info, g_lastInfo;
@@ -102,6 +103,20 @@ void SetOcclusion(OcclusionMode mode) {
     static const char* const kNames[] = {"on", "off", "shown alone"};
     if (mode != g_mode) ei::Log("render: ambient occlusion %s", kNames[static_cast<int>(mode)]);
     g_mode = mode;
+}
+
+OcclusionTuning GetOcclusionTuning() {
+    return {kRadius, kStrength, kAngleBias, kWidestTexels, kBlurSharpness, kDirect, static_cast<int>(g_mode)};
+}
+
+void SetOcclusionTuning(const OcclusionTuning& t) {
+    kRadius = std::max(t.radius, 0.01f);
+    kStrength = t.strength;
+    kAngleBias = t.bias;
+    kWidestTexels = std::max(t.widest, 1.0f);
+    kBlurSharpness = t.sharpness;
+    kDirect = std::clamp(t.direct, 0.0f, 1.0f);
+    g_mode = static_cast<OcclusionMode>(t.mode);
 }
 
 OcclusionInfo OcclusionState() {
@@ -212,6 +227,7 @@ void DrawOcclusion(Frame& f) {
 
     g_receiver.on = true;
     g_receiver.view = g_mode == OcclusionMode::View;
+    g_receiver.direct = kDirect;
     g_receiver.depthOffset = depthMap[0];
     g_receiver.depthScale = depthMap[1];
     g_receiver.scale[0] = static_cast<float>(g_width) / width;

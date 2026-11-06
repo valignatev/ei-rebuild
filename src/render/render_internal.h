@@ -1140,6 +1140,7 @@ void DrawOcclusion(Frame& frame);
 struct OcclusionReceiver {
     bool on = false;
     bool view = false;                  // the occlusion alone (SetOcclusion's View)
+    float direct = 0.0f;                // how much it darkens the direct light too
     float depthOffset = 0.0f;           // a depth's clip w: depthScale / (depth - depthOffset)
     float depthScale = 0.0f;
     float scale[2] = {};                // the half-size texels per frame pixel
@@ -1153,6 +1154,7 @@ void OcclusionUniforms(bool receives, Block& fs) {
     const OcclusionReceiver& o = OcclusionOf(receives);
     fs.occlusionOn = o.on ? 1 : 0;
     fs.occlusionView = o.view ? 1 : 0;
+    fs.occlusionDirect = o.direct;
     fs.occlusionDepthOffset = o.depthOffset;
     fs.occlusionDepthScale = o.depthScale;
     for (int k = 0; k < 2; ++k) {
